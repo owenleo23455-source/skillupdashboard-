@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Student Dashboard</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <h1>Student Dashboard</h1>
+  <button onclick="logout()">Logout</button>
+
+  <h2 id="welcome"></h2>
+  <p><strong>Payment Status:</strong> <span id="paymentStatus"></span></p>
+
+  <h2>Announcements</h2>
+  <div id="announcementList"></div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+    import { getFirestore, doc, getDoc, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyDUOyULQuCT_i8FMMrO8H-Hd1g2Bs8X0eQ",
+      authDomain: "skillupdashboard-3a198.firebaseapp.com",
+      projectId: "skillupdashboard-3a198",
+      storageBucket: "skillupdashboard-3a198.firebasestorage.app",
+      messagingSenderId: "869644239541",
+      appId: "1:869644239541:web:a95a9e65c8ce19b085b4fc",
+      measurementId: "G-31VDJGS9R9"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    // Protect page
+    if (localStorage.getItem("role") !== "student") {
+      window.location.href = "login.html";
+    }
+
+    const studentId = localStorage.getItem("studentId");
+    const studentName = localStorage.getItem("studentName");
+
+    document.getElementById("welcome").textContent = `Welcome, ${studentName}!`;
+
+    async function loadStudent() {
+      const studentRef = doc(db, "students", studentId);
+      const studentSnap = await getDoc(studentRef);
+      if (studentSnap.exists()) {
+        document.getElementById("paymentStatus").textContent = studentSnap.data().paymentStatus;
+      }
+    }
+
+    async function loadAnnouncements() {
+      const snapshot = await getDocs(collection(db, "announcements"));
+      const listDiv = document.getElementById("announcementList");
+      listDiv.innerHTML = "";
+      snapshot.forEach(docSnap => {
+        const a = docSnap.data();
+        listDiv.innerHTML += `<p>📢 ${a.date}: ${a.message}</p>`;
+      });
+    }
+
+    function logout() {
+      localStorage.clear();
+      window.location.href = "login.html";
+    }
+    window.logout = logout;
+
+    loadStudent();
+    loadAnnouncements();
+  </script>
+</body>
+</html>

@@ -1,0 +1,101 @@
+/* ===== General Reset ===== */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+}
+
+body {
+  background: #f4f6f9;
+  color: #333;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 20px;
+}
+
+/* ===== Titles ===== */
+h1 {
+  margin-bottom: 20px;
+  color: #2c3e50;
+}
+
+h2 {
+  margin: 20px 0 10px;
+  color: #34495e;
+}
+
+/* ===== Forms ===== */
+form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 20px;
+  width: 100%;
+  max-width: 400px;
+  background: #fff;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+}
+
+input {
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  outline: none;
+  font-size: 14px;
+}
+
+input:focus {
+  border-color: #3498db;
+}
+
+/* ===== Buttons ===== */
+button {
+  padding: 10px;
+  border: none;
+  border-radius: 6px;
+  background: #3498db;
+  color: white;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+button:hover {
+  background: #2980b9;
+}
+
+/* ===== Cards / Lists ===== */
+#studentList p, #announcementList p {
+  background: #fff;
+  margin: 8px 0;
+  padding: 12px;
+  border-radius: 6px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+}
+
+#studentList button {
+  margin-left: 10px;
+  padding: 5px 10px;
+  font-size: 12px;
+  border-radius: 4px;
+  background: #27ae60;
+}
+
+#studentList button:hover {
+  background: #219150;
+}
+
+/* ===== Logout Button ===== */
+button[onclick="logout()"] {
+  background: #e74c3c;
+  margin-bottom: 15px;
+}
+
+button[onclick="logout()"]:hover {
+  background: #c0392b;
+}

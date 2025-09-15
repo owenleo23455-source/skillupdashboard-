@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Dashboard</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <h1>Admin Dashboard</h1>
+  <button onclick="logout()">Logout</button>
+
+  <h2>Add Student</h2>
+  <form id="addStudentForm">
+    <input type="text" id="studentName" placeholder="Student Name" required>
+    <input type="text" id="studentUsername" placeholder="Username" required>
+    <input type="password" id="studentPassword" placeholder="Password" required>
+    <button type="submit">Add</button>
+  </form>
+
+  <h2>Students</h2>
+  <div id="studentList"></div>
+
+  <h2>Add Announcement</h2>
+  <form id="announcementForm">
+    <input type="text" id="announcementText" placeholder="Type announcement..." required>
+    <button type="submit">Post</button>
+  </form>
+
+  <h2>Announcements</h2>
+  <div id="announcementList"></div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+    import { getFirestore, collection, addDoc, getDocs, updateDoc, doc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyDUOyULQuCT_i8FMMrO8H-Hd1g2Bs8X0eQ",
+      authDomain: "skillupdashboard-3a198.firebaseapp.com",
+      projectId: "skillupdashboard-3a198",
+      storageBucket: "skillupdashboard-3a198.firebasestorage.app",
+      messagingSenderId: "869644239541",
+      appId: "1:869644239541:web:a95a9e65c8ce19b085b4fc",
+      measurementId: "G-31VDJGS9R9"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    // Protect page
+    if (localStorage.getItem("role") !== "admin") {
+      window.location.href = "login.html";
+    }
+
+    async function addStudent(student) {
+      await addDoc(collection(db, "students"), student);
+    }
+
+    async function getStudents() {
+      const snapshot = await getDocs(collection(db, "students"));
+      let students = [];
+      snapshot.forEach(docSnap => students.push({ id: docSnap.id, ...docSnap.data() }));
+      return students;
+    }
+
+    async function updatePayment(studentId, status) {
+      const studentRef = doc(db, "students", studentId);
+      await updateDoc(studentRef, { paymentStatus: status });
+    }
+
+    async function addAnnouncement(message) {
+      await addDoc(collection(db, "announcements"), { message, date: new Date().toLocaleString() });
+    }
+
+    async function getAnnouncements() {
+      const snapshot = await getDocs(collection(db, "announcements"));
+      let anns = [];
+      snapshot.forEach(docSnap => anns.push(docSnap.data()));
+      return anns;
+    }
+
+    // Forms
+    document.getElementById("addStudentForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const name = document.getElementById("studentName").value;
+      const username = document.getElementById("studentUsername").value;
+      const password = document.getElementById("studentPassword").value;
+      await addStudent({ name, username, password, paymentStatus: "Unpaid" });
+      loadStudents();
+      e.target.reset();
+    });
+
+    document.getElementById("announcementForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const msg = document.getElementById("announcementText").value;
+      await addAnnouncement(msg);
+      loadAnnouncements();
+      e.target.reset();
+    });
+
+    async function loadStudents() {
+      const students = await getStudents();
+      const listDiv = document.getElementById("studentList");
+      listDiv.innerHTML = "";
+      students.forEach(st => {
+        listDiv.innerHTML += `
+          <p>${st.name} (${st.username}) - 
+          <b>${st.paymentStatus}</b>
+          <button onclick="togglePayment('${st.id}', '${st.paymentStatus}')">
+            Mark ${st.paymentStatus === 'Paid' ? 'Unpaid' : 'Paid'}
+          </button></p>`;
+      });
+    }
+
+    window.togglePayment = async (id, currentStatus) => {
+      const newStatus = currentStatus === "Paid" ? "Unpaid" : "Paid";
+      await updatePayment(id, newStatus);
+      loadStudents();
+    };
+
+    async function loadAnnouncements() {
+      const anns = await getAnnouncements();
+      const listDiv = document.getElementById("announcementList");
+      listDiv.innerHTML = "";
+      anns.forEach(a => listDiv.innerHTML += `<p>📢 ${a.date}: ${a.message}</p>`);
+    }
+
+    function logout() {
+      localStorage.clear();
+      window.location.href = "login.html";
+    }
+    window.logout = logout;
+
+    loadStudents();
+    loadAnnouncements();
+  </script>
+</body>
+</html>
